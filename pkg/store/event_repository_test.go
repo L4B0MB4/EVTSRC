@@ -38,10 +38,11 @@ func TestAddEventSuccessful(t *testing.T) {
 	}
 	r := store.NewEventRepository(conn)
 	ev := models.Event{
-		Version:     1,
-		Name:        "testevent",
-		Data:        []byte{0, 1},
-		AggregateId: "anyaggregatetype",
+		Version:       1,
+		Name:          "testevent",
+		Data:          []byte{0, 1},
+		AggregateId:   "anyaggregateId",
+		AggregateType: "aggregateType",
 	}
 	err = r.AddEvents([]models.Event{ev})
 	if err != nil {
@@ -77,10 +78,11 @@ func TestAddEventDuplicate(t *testing.T) {
 	}
 	r := store.NewEventRepository(conn)
 	ev := models.Event{
-		Version:     1,
-		Name:        "testevent",
-		Data:        []byte{0, 1},
-		AggregateId: "anyaggregatetype",
+		Version:       1,
+		Name:          "testevent",
+		Data:          []byte{0, 1},
+		AggregateId:   "anyaggregateId",
+		AggregateType: "aggregateType",
 	}
 	err = r.AddEvents([]models.Event{ev})
 	if err != nil {
@@ -104,10 +106,11 @@ func TestAddTwoFollowingEvents(t *testing.T) {
 	}
 	r := store.NewEventRepository(conn)
 	ev := models.Event{
-		Version:     1,
-		Name:        "testevent",
-		Data:        []byte{0, 1},
-		AggregateId: "anyaggregatetype",
+		Version:       1,
+		Name:          "testevent",
+		Data:          []byte{0, 1},
+		AggregateId:   "anyaggregateId",
+		AggregateType: "aggregateType",
 	}
 	err = r.AddEvents([]models.Event{ev})
 	if err != nil {
@@ -130,7 +133,7 @@ func TestAddThreeEventsOfTwoAggregates(t *testing.T) {
 		t.Fail()
 	}
 	r := store.NewEventRepository(conn)
-	oldAggType := "anyaggregatetype"
+	oldAggType := "anyaggregateId"
 	ev := models.Event{
 		Version:     1,
 		Name:        "testevent",
@@ -141,7 +144,7 @@ func TestAddThreeEventsOfTwoAggregates(t *testing.T) {
 	ev.Version++
 	r.AddEvents([]models.Event{ev})
 	ev.Version = 0
-	newAggType := "aggregatetype2"
+	newAggType := "aggregateId2"
 	ev.AggregateId = newAggType
 	r.AddEvents([]models.Event{ev})
 
@@ -167,16 +170,18 @@ func TestAddTwoFollowingEventsInOneArray(t *testing.T) {
 	}
 	r := store.NewEventRepository(conn)
 	ev := models.Event{
-		Version:     1,
-		Name:        "testevent",
-		Data:        []byte{0, 1},
-		AggregateId: "anyaggregatetype",
+		Version:       1,
+		Name:          "testevent",
+		Data:          []byte{0, 1},
+		AggregateId:   "anyaggregateId",
+		AggregateType: "aggregateType",
 	}
 	ev1 := models.Event{
-		Version:     2,
-		Name:        "testevent",
-		Data:        []byte{0, 1},
-		AggregateId: "anyaggregatetype",
+		Version:       2,
+		Name:          "testevent",
+		Data:          []byte{0, 1},
+		AggregateId:   "anyaggregateId",
+		AggregateType: "aggregateType",
 	}
 	err = r.AddEvents([]models.Event{ev, ev1})
 	if err != nil {
@@ -212,16 +217,18 @@ func TestAddTwoEventsWithSameVersionInOneArray(t *testing.T) {
 	}
 	r := store.NewEventRepository(conn)
 	ev := models.Event{
-		Version:     1,
-		Name:        "testevent",
-		Data:        []byte{0, 1},
-		AggregateId: "anyaggregatetype",
+		Version:       1,
+		Name:          "testevent",
+		Data:          []byte{0, 1},
+		AggregateId:   "anyaggregateId",
+		AggregateType: "aggregateType",
 	}
 	ev1 := models.Event{
-		Version:     1,
-		Name:        "othervent",
-		Data:        []byte{0, 1},
-		AggregateId: "anyaggregatetype",
+		Version:       1,
+		Name:          "othervent",
+		Data:          []byte{0, 1},
+		AggregateId:   "anyaggregateId",
+		AggregateType: "aggregateType",
 	}
 	err = r.AddEvents([]models.Event{ev, ev1})
 	if err == nil {

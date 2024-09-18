@@ -81,8 +81,8 @@ func (e *EventRepository) addEvent(tx *sql.Tx, event *eventEntity) error {
 	}
 
 	stmtAgg, err := e.store.Prepare(`
-        INSERT INTO aggregate_state(id,version_0, version_1)
-        VALUES (?,?,?)
+        INSERT INTO aggregate_state(id,type, version_0, version_1)
+        VALUES (?,?,?,?)
     `)
 	if err != nil {
 		log.Info().Err(err).Msg("Preparing insert statement for events table")
@@ -90,7 +90,7 @@ func (e *EventRepository) addEvent(tx *sql.Tx, event *eventEntity) error {
 	}
 	defer stmt.Close()
 
-	_, err = tx.Stmt(stmtAgg).Exec(event.AggregateId, v0, v1)
+	_, err = tx.Stmt(stmtAgg).Exec(event.AggregateId, event.AggregateType, v0, v1)
 	if err != nil {
 		return err
 	}
@@ -98,11 +98,11 @@ func (e *EventRepository) addEvent(tx *sql.Tx, event *eventEntity) error {
 	return nil
 }
 
-func (e *EventRepository) GetEventsForAggregate(aggregateType string) ([]models.Event, error) {
+func (e *EventRepository) GetEventsForAggregate(aggregateId string) ([]models.Event, error) {
 
 	// Prepare the SQL query
 	query := `
-		SELECT events.Name, events.version_0, events.version_1, events.data,events.aggregateId 
+		SELECT events.Name, events.version_0, events.version_1, events.data,events.aggregateId,aggregate_state.type
 		FROM events 
 		JOIN aggregate_state 
 			ON events.aggregateId = aggregate_state.id 
@@ -120,7 +120,7 @@ func (e *EventRepository) GetEventsForAggregate(aggregateType string) ([]models.
 	defer stmt.Close()
 
 	// Execute the query
-	rows, err := stmt.Query(aggregateType)
+	rows, err := stmt.Query(aggregateId)
 	if err != nil {
 		log.Info().Err(err).Msg("Error running query statement")
 		return nil, errors.New("COULD NOT QUERY EVENTS")
@@ -136,7 +136,7 @@ func (e *EventRepository) GetEventsForAggregate(aggregateType string) ([]models.
 
 		var v0 int32
 		var v1 int32
-		err = rows.Scan(&event.Name, &v0, &v1, &event.Data, &event.AggregateId)
+		err = rows.Scan(&event.Name, &v0, &v1, &event.Data, &event.AggregateId, &event.AggregateType)
 		if err != nil {
 			log.Info().Err(err).Msg("Error scanning rows")
 			return nil, errors.New("COULD NOT RETRIEVE EVENT")

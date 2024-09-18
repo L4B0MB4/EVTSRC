@@ -34,6 +34,24 @@ func NewEventSourcingHttpClient(urlStr string) (*EventSourcingHttpClient, error)
 }
 
 func (client *EventSourcingHttpClient) AddEvents(aggregateId string, events []models.Event) error {
+	if len(aggregateId) <= 0 {
+		return fmt.Errorf("AGGREGATEID EMPTY")
+	}
+	for _, event := range events {
+		if len(event.AggregateType) <= 0 {
+			return fmt.Errorf("AGGREGATETYPE EMPTY")
+		}
+		if len(event.Data) == 0 {
+			return fmt.Errorf("DATA EMPTY")
+		}
+		if len(event.Name) == 0 {
+			return fmt.Errorf("NAME EMPTY")
+		}
+	}
+	return client.AddEventsWithoutValidation(aggregateId, events)
+}
+
+func (client *EventSourcingHttpClient) AddEventsWithoutValidation(aggregateId string, events []models.Event) error {
 	bodyBytes, err := json.Marshal(events)
 	if err != nil {
 		log.Info().Err(err).Msg("Could not marshal events")

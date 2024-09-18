@@ -43,10 +43,10 @@ func (d *DatabaseConnection) SetUp() {
 	if createAggregateStateTable(db) != nil {
 		return
 	}
-	if createAggregateTableIndex(db) != nil {
+	if createAggregateTableIdIndex(db) != nil {
 		return
 	}
-	if createAggregateSnapshotTable(db) != nil {
+	if createAggregateTableTypeIndex(db) != nil {
 		return
 	}
 	d.db = db
@@ -93,7 +93,7 @@ func createEventTableIndex(db *sql.DB) error {
 
 func createAggregateStateTable(db *sql.DB) error {
 	//type = name of the aggregate
-	stmt, err := db.Prepare("CREATE TABLE IF NOT EXISTS aggregate_state (id TEXT,version_0 INTEGER,version_1 INTEGER,UNIQUE(id,version_0, version_1) ON CONFLICT FAIL )")
+	stmt, err := db.Prepare("CREATE TABLE IF NOT EXISTS aggregate_state (id TEXT,type TEXT,version_0 INTEGER,version_1 INTEGER,UNIQUE(id,version_0, version_1) ON CONFLICT FAIL )")
 	if err != nil {
 
 		log.Info().Err(err).Msg("Preparing statement for aggregate_state table")
@@ -108,7 +108,7 @@ func createAggregateStateTable(db *sql.DB) error {
 	return nil
 }
 
-func createAggregateTableIndex(db *sql.DB) error {
+func createAggregateTableIdIndex(db *sql.DB) error {
 
 	stmt, err := db.Prepare("CREATE INDEX IF NOT EXISTS IX_aggregate_state__id ON aggregate_state(id);")
 	if err != nil {
@@ -124,7 +124,24 @@ func createAggregateTableIndex(db *sql.DB) error {
 	}
 	return nil
 }
+func createAggregateTableTypeIndex(db *sql.DB) error {
 
+	stmt, err := db.Prepare("CREATE INDEX IF NOT EXISTS IX_aggregate_state__typr ON aggregate_state(type);")
+	if err != nil {
+
+		log.Info().Err(err).Msg("Preparing statement for aggregate_state table")
+		return err
+	}
+	_, err = stmt.Exec()
+	if err != nil {
+
+		log.Info().Err(err).Msg("Creating index on aggregate_state table")
+		return err
+	}
+	return nil
+}
+
+/*
 func createAggregateSnapshotTable(db *sql.DB) error {
 	stmt, err := db.Prepare("CREATE TABLE IF NOT EXISTS aggregate_snapshots (id TEXT PRIMARY KEY, name TEXT,version_0 INTEGER,version_1 INTEGER,UNIQUE(version_0, version_1) ON CONFLICT FAIL )")
 	if err != nil {
@@ -139,7 +156,7 @@ func createAggregateSnapshotTable(db *sql.DB) error {
 		return err
 	}
 	return nil
-}
+}*/
 
 func (d *DatabaseConnection) GetDbConnection() (*sql.DB, error) {
 	if !d.initialized {

@@ -48,15 +48,15 @@ func TestClientAddingEventsAndRetrievingThemFromServer(t *testing.T) {
 	defer teardown(httpHandler, db)
 
 	err := client.AddEventsWithoutValidation("myaggregate4444", []models.ChangeTrackedEvent{
-		{Event: models.Event{Version: 1, Name: "asdasd", Data: []byte{0, 1, 2}, AggregateType: "mytype"}},
-		{Event: models.Event{Version: 2, Name: "asdasd2", Data: []byte{1, 2, 3}, AggregateType: "mytype"}}})
+		{IsNew: true, Event: models.Event{Version: 1, Name: "asdasd", Data: []byte{0, 1, 2}, AggregateType: "mytype"}},
+		{IsNew: true, Event: models.Event{Version: 2, Name: "asdasd2", Data: []byte{1, 2, 3}, AggregateType: "mytype"}}})
 	if err != nil {
 		log.Error().Err(err).Msg("ERROR ADDING EVENTS")
 		t.Fail()
 	}
 	err = client.AddEventsWithoutValidation("differentaggregate", []models.ChangeTrackedEvent{
-		{Event: models.Event{Version: 7, Name: "asdasd", Data: []byte{0, 1, 2}, AggregateType: "mytype"}},
-		{Event: models.Event{Version: 8, Name: "asdasd2", Data: []byte{1, 2, 3}, AggregateType: "mytype"}}})
+		{IsNew: true, Event: models.Event{Version: 7, Name: "asdasd", Data: []byte{0, 1, 2}, AggregateType: "mytype"}},
+		{IsNew: true, Event: models.Event{Version: 8, Name: "asdasd2", Data: []byte{1, 2, 3}, AggregateType: "mytype"}}})
 	if err != nil {
 		log.Error().Err(err).Msg("ERROR ADDING EVENTS FOR SECOND AGGREGATE")
 		t.Fail()

@@ -21,14 +21,18 @@ type EventSourcingHttpClient struct {
 func stripOldEvents(events []models.ChangeTrackedEvent) []models.Event {
 	newEvents := []models.Event{}
 	for _, e := range events {
-		ev := models.Event{
-			Version:       e.Version,
-			Name:          e.Name,
-			Data:          e.Data,
-			AggregateId:   e.AggregateId,
-			AggregateType: e.AggregateType,
+
+		if e.IsNew {
+			ev := models.Event{
+				Version:       e.Version,
+				Name:          e.Name,
+				Data:          e.Data,
+				AggregateId:   e.AggregateId,
+				AggregateType: e.AggregateType,
+			}
+			newEvents = append(newEvents, ev)
+
 		}
-		newEvents = append(newEvents, ev)
 	}
 	return newEvents
 }

@@ -18,6 +18,21 @@ type EventSourcingHttpClient struct {
 	url        string
 }
 
+func stripOldEvents(events []models.ChangeTrackedEvent) []models.Event {
+	newEvents := []models.Event{}
+	for _, e := range events {
+		ev := models.Event{
+			Version:       e.Version,
+			Name:          e.Name,
+			Data:          e.Data,
+			AggregateId:   e.AggregateId,
+			AggregateType: e.AggregateType,
+		}
+		newEvents = append(newEvents, ev)
+	}
+	return newEvents
+}
+
 func NewEventSourcingHttpClient(urlStr string) (*EventSourcingHttpClient, error) {
 
 	path, err := url.Parse(urlStr)
@@ -33,7 +48,7 @@ func NewEventSourcingHttpClient(urlStr string) (*EventSourcingHttpClient, error)
 	}, nil
 }
 
-func (client *EventSourcingHttpClient) AddEvents(aggregateId string, events []models.Event) error {
+func (client *EventSourcingHttpClient) AddEvents(aggregateId string, events []models.ChangeTrackedEvent) error {
 	if len(aggregateId) <= 0 {
 		return fmt.Errorf("AGGREGATEID EMPTY")
 	}
@@ -51,8 +66,10 @@ func (client *EventSourcingHttpClient) AddEvents(aggregateId string, events []mo
 	return client.AddEventsWithoutValidation(aggregateId, events)
 }
 
-func (client *EventSourcingHttpClient) AddEventsWithoutValidation(aggregateId string, events []models.Event) error {
-	bodyBytes, err := json.Marshal(events)
+func (client *EventSourcingHttpClient) AddEventsWithoutValidation(aggregateId string, events []models.ChangeTrackedEvent) error {
+
+	newEvents := stripOldEvents(events)
+	bodyBytes, err := json.Marshal(newEvents)
 	if err != nil {
 		log.Info().Err(err).Msg("Could not marshal events")
 		return err

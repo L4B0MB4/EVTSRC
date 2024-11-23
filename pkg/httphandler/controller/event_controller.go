@@ -11,16 +11,19 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// EventController handles HTTP requests for events.
 type EventController struct {
 	repo *store.EventRepository
 }
 
+// NewEventController creates a new EventController.
 func NewEventController(repo *store.EventRepository) *EventController {
 	return &EventController{
 		repo: repo,
 	}
 }
 
+// GetEventsForAggregate handles the retrieval of events for a given aggregate ID.
 func (ctrl *EventController) GetEventsForAggregate(c *gin.Context) {
 
 	aggregateId := c.Param("aggregateId")
@@ -42,6 +45,7 @@ func (ctrl *EventController) GetEventsForAggregate(c *gin.Context) {
 	c.JSON(http.StatusOK, &resp)
 }
 
+// AddEventToAggregate handles the addition of events to a given aggregate ID.
 func (ctrl *EventController) AddEventToAggregate(c *gin.Context) {
 	var events []models.Event
 	aggregateId := c.Param("aggregateId")
@@ -68,6 +72,7 @@ func (ctrl *EventController) AddEventToAggregate(c *gin.Context) {
 	}
 }
 
+// GetEventsSince handles the retrieval of events since a given event ID with a limit.
 func (ctrl *EventController) GetEventsSince(c *gin.Context) {
 	eventId := c.Param("eventId")
 	if len(strings.TrimSpace(eventId)) == 0 {

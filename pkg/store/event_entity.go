@@ -7,6 +7,7 @@ import (
 	"github.com/google/uuid"
 )
 
+// eventEntity represents an event with additional metadata.
 type eventEntity struct {
 	models.Event
 	timestamp time.Time

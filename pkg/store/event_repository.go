@@ -14,11 +14,13 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+// EventRepository handles the storage of events.
 type EventRepository struct {
 	store *sql.DB
 	mu    sync.Mutex
 }
 
+// NewEventRepository creates a new EventRepository.
 func NewEventRepository(db *sql.DB) *EventRepository {
 	if db == nil {
 		return nil
@@ -27,6 +29,7 @@ func NewEventRepository(db *sql.DB) *EventRepository {
 	return &EventRepository{store: db, mu: sync.Mutex{}}
 }
 
+// AddEvents adds multiple events to the repository.
 func (e *EventRepository) AddEvents(events []models.Event) error {
 
 	tx, err := e.store.Begin()
@@ -51,6 +54,7 @@ func (e *EventRepository) AddEvents(events []models.Event) error {
 	return tx.Commit()
 }
 
+// addEvent adds a single event to the repository within a transaction.
 func (e *EventRepository) addEvent(tx *sql.Tx, event *eventEntity) error {
 	e.mu.Lock()
 	time.Sleep(1 * time.Microsecond) //one item per microsecond
@@ -103,6 +107,7 @@ func (e *EventRepository) addEvent(tx *sql.Tx, event *eventEntity) error {
 	return nil
 }
 
+// GetEventsForAggregate retrieves all events for a given aggregate ID.
 func (e *EventRepository) GetEventsForAggregate(aggregateId string) ([]models.Event, error) {
 
 	// Prepare the SQL query
@@ -165,6 +170,7 @@ func (e *EventRepository) GetEventsForAggregate(aggregateId string) ([]models.Ev
 	return events, nil
 }
 
+// GetEventsSinceEvent retrieves events since a given event ID with a limit.
 func (repo *EventRepository) GetEventsSinceEvent(eventId string, limit int) ([]models.Event, error) {
 	query := `
 		SELECT events.timestamp_0, events.timestamp_1

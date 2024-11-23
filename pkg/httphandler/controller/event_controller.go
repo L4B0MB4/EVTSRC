@@ -2,6 +2,7 @@ package controller
 
 import (
 	"net/http"
+	"strconv"
 	"strings"
 
 	"github.com/L4B0MB4/EVTSRC/pkg/models"
@@ -65,4 +66,35 @@ func (ctrl *EventController) AddEventToAggregate(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Unkown error occured"})
 		return
 	}
+}
+
+func (ctrl *EventController) GetEventsSince(c *gin.Context) {
+	eventId := c.Param("eventId")
+	if len(strings.TrimSpace(eventId)) == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Path param cant be empty or null"})
+		return
+	}
+	limitStr := c.Query("limit")
+	limit := 100
+	if len(strings.TrimSpace(limitStr)) > 0 {
+		var err error
+		limit, err = strconv.Atoi(limitStr)
+		if err != nil || limit <= 0 {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid limit value"})
+			return
+		}
+		if limit > 100 {
+			limit = 100
+		}
+	}
+	resp, err := ctrl.repo.GetEventsSinceEvent(eventId, limit)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Unkown error occured"})
+		return
+	}
+	if len(resp) == 0 {
+		c.JSON(http.StatusOK, []models.Event{})
+		return
+	}
+	c.JSON(http.StatusOK, &resp)
 }

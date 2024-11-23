@@ -71,8 +71,7 @@ func (ctrl *EventController) AddEventToAggregate(c *gin.Context) {
 func (ctrl *EventController) GetEventsSince(c *gin.Context) {
 	eventId := c.Param("eventId")
 	if len(strings.TrimSpace(eventId)) == 0 {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Path param cant be empty or null"})
-		return
+		eventId = "0"
 	}
 	limitStr := c.Query("limit")
 	limit := 100

@@ -9,6 +9,7 @@ import (
 	"github.com/L4B0MB4/EVTSRC/pkg/helper"
 )
 
+// TestInt62Split64Bit tests splitting a 64-bit integer.
 func TestInt62Split64Bit(t *testing.T) {
 	var b1 int64 = int64(math.Pow(2, 64)) - 1
 
@@ -20,6 +21,8 @@ func TestInt62Split64Bit(t *testing.T) {
 		t.Fail()
 	}
 }
+
+// TestInt62Split63Bit tests splitting a 63-bit integer.
 func TestInt62Split63Bit(t *testing.T) {
 	var b1 int64 = int64(math.Pow(2, 63)) - 1
 
@@ -30,6 +33,7 @@ func TestInt62Split63Bit(t *testing.T) {
 	}
 }
 
+// TestInt62Split62Bit tests splitting a 62-bit integer.
 func TestInt62Split62Bit(t *testing.T) {
 
 	var b1 int64 = int64(math.Pow(2, 62)) - 1
@@ -41,6 +45,7 @@ func TestInt62Split62Bit(t *testing.T) {
 	}
 }
 
+// TestInt62Split tests splitting and merging a 62-bit integer.
 func TestInt62Split(t *testing.T) {
 
 	var b1 int64 = int64(math.Pow(2, 62)) - 1
@@ -61,6 +66,8 @@ func TestInt62Split(t *testing.T) {
 		t.Fail()
 	}
 }
+
+// TestInt62MergeTwoNegatives tests merging two negative integers.
 func TestInt62MergeTwoNegatives(t *testing.T) {
 
 	_, err := helper.MergeInt62(int32(math.Pow(2, 32)-1), int32(math.Pow(2, 32)-1))
@@ -70,6 +77,7 @@ func TestInt62MergeTwoNegatives(t *testing.T) {
 	}
 }
 
+// TestInt62MergeOneNegativeOnePositive tests merging one negative and one positive integer.
 func TestInt62MergeOneNegativeOnePositive(t *testing.T) {
 
 	_, err := helper.MergeInt62(int32(math.Pow(2, 32)-1), int32(math.Pow(2, 1)))
@@ -79,6 +87,7 @@ func TestInt62MergeOneNegativeOnePositive(t *testing.T) {
 	}
 }
 
+// TestInt62MergeOnePositiveOneNegative tests merging one positive and one negative integer.
 func TestInt62MergeOnePositiveOneNegative(t *testing.T) {
 
 	_, err := helper.MergeInt62(int32(math.Pow(2, 1)), int32(math.Pow(2, 32)-1))
@@ -88,6 +97,7 @@ func TestInt62MergeOnePositiveOneNegative(t *testing.T) {
 	}
 }
 
+// TestInt62MergeTwoPositive tests merging two positive integers.
 func TestInt62MergeTwoPositive(t *testing.T) {
 
 	big, err := helper.MergeInt62(int32(math.Pow(2, 31)-1), int32(math.Pow(2, 31)-1))
@@ -101,6 +111,7 @@ func TestInt62MergeTwoPositive(t *testing.T) {
 	}
 }
 
+// TestInt62MergeTwoPositiveEx2 tests merging two positive integers (example 2).
 func TestInt62MergeTwoPositiveEx2(t *testing.T) {
 
 	big, err := helper.MergeInt62(int32(math.Pow(2, 30)-1), int32(math.Pow(2, 31)-1))
@@ -114,6 +125,7 @@ func TestInt62MergeTwoPositiveEx2(t *testing.T) {
 	}
 }
 
+// TestInt62MergeTwoPositiveEx3 tests merging two positive integers (example 3).
 func TestInt62MergeTwoPositiveEx3(t *testing.T) {
 
 	big, err := helper.MergeInt62(int32(math.Pow(2, 30)-1), int32(math.Pow(2, 30)-1))
@@ -127,6 +139,7 @@ func TestInt62MergeTwoPositiveEx3(t *testing.T) {
 	}
 }
 
+// TestInt62SplitAndMergeEx1 tests splitting and merging a 57-bit integer (example 1).
 func TestInt62SplitAndMergeEx1(t *testing.T) {
 
 	var b1 int64 = int64(math.Pow(2, 57)) - 1
@@ -147,6 +160,7 @@ func TestInt62SplitAndMergeEx1(t *testing.T) {
 	}
 }
 
+// TestInt62SplitAndMergeEx2 tests splitting and merging a 57-bit integer (example 2).
 func TestInt62SplitAndMergeEx2(t *testing.T) {
 
 	var b1 int64 = int64(math.Pow(2, 57)) - 2

@@ -7,6 +7,7 @@ import (
 	"github.com/L4B0MB4/EVTSRC/pkg/models"
 )
 
+// TestIteratorNext tests the Next method of the EventsIterator.
 func TestIteratorNext(t *testing.T) {
 
 	eIter := client.NewEventIterator([]models.Event{{}})
@@ -22,6 +23,7 @@ func TestIteratorNext(t *testing.T) {
 	}
 }
 
+// TestIteratorNextMultiItem tests the Next method of the EventsIterator with multiple items.
 func TestIteratorNextMultiItem(t *testing.T) {
 
 	eIter := client.NewEventIterator([]models.Event{{Name: "1"}, {Name: "2"}})
@@ -37,6 +39,7 @@ func TestIteratorNextMultiItem(t *testing.T) {
 	}
 }
 
+// TestIteratorCurrent tests the Current method of the EventsIterator.
 func TestIteratorCurrent(t *testing.T) {
 
 	eIter := client.NewEventIterator([]models.Event{{Name: "1"}, {Name: "2"}})

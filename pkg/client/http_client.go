@@ -13,11 +13,13 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+// EventSourcingHttpClient is a client for interacting with the event sourcing HTTP API.
 type EventSourcingHttpClient struct {
 	httpClient *http.Client
 	url        string
 }
 
+// stripOldEvents filters out old events from a list of change-tracked events.
 func stripOldEvents(events []models.ChangeTrackedEvent) []models.Event {
 	newEvents := []models.Event{}
 	for _, e := range events {
@@ -37,6 +39,7 @@ func stripOldEvents(events []models.ChangeTrackedEvent) []models.Event {
 	return newEvents
 }
 
+// NewEventSourcingHttpClient creates a new EventSourcingHttpClient.
 func NewEventSourcingHttpClient(urlStr string) (*EventSourcingHttpClient, error) {
 
 	path, err := url.Parse(urlStr)
@@ -52,6 +55,7 @@ func NewEventSourcingHttpClient(urlStr string) (*EventSourcingHttpClient, error)
 	}, nil
 }
 
+// AddEvents adds events to a given aggregate ID with validation.
 func (client *EventSourcingHttpClient) AddEvents(aggregateId string, events []models.ChangeTrackedEvent) error {
 	if len(aggregateId) <= 0 {
 		return fmt.Errorf("aggregateId empty")
@@ -70,6 +74,7 @@ func (client *EventSourcingHttpClient) AddEvents(aggregateId string, events []mo
 	return client.AddEventsWithoutValidation(aggregateId, events)
 }
 
+// AddEventsWithoutValidation adds events to a given aggregate ID without validation.
 func (client *EventSourcingHttpClient) AddEventsWithoutValidation(aggregateId string, events []models.ChangeTrackedEvent) error {
 
 	newEvents := stripOldEvents(events)
@@ -98,6 +103,7 @@ func (client *EventSourcingHttpClient) AddEventsWithoutValidation(aggregateId st
 	return nil
 }
 
+// GetEventsOrdered retrieves events for a given aggregate ID in order.
 func (client *EventSourcingHttpClient) GetEventsOrdered(aggregateId string) (*EventsIterator, error) {
 
 	getEventsUrl, err := url.JoinPath(client.url, fmt.Sprintf("/%s/events", aggregateId))
@@ -142,6 +148,7 @@ func (client *EventSourcingHttpClient) GetEventsOrdered(aggregateId string) (*Ev
 	return eventsIterator, nil
 }
 
+// GetEventsSince retrieves events since a given event ID with a limit.
 func (client *EventSourcingHttpClient) GetEventsSince(eventId string, limit int) ([]models.Event, error) {
 	if len(eventId) == 0 {
 		eventId = "0"

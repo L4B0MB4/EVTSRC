@@ -295,12 +295,12 @@ func TestGetEventsSinceEvent(t *testing.T) {
 
 	events, err := repo.GetEventsSinceEvent(event1.Id, 2)
 	assert.NoError(t, err)
-	assert.Len(t, events, 4)
+	assert.Len(t, events, 2)
 	assert.Equal(t, event1.Name, events[0].Name)
 	assert.Equal(t, event2.Name, events[1].Name)
 	events, err = repo.GetEventsSinceEvent(events[1].Id, 2)
 	assert.NoError(t, err)
-	assert.Len(t, events, 4)
+	assert.Len(t, events, 2)
 	assert.Equal(t, event3.Name, events[0].Name)
 	assert.Equal(t, event4.Name, events[1].Name)
 }

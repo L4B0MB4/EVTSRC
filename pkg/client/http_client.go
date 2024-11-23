@@ -54,17 +54,17 @@ func NewEventSourcingHttpClient(urlStr string) (*EventSourcingHttpClient, error)
 
 func (client *EventSourcingHttpClient) AddEvents(aggregateId string, events []models.ChangeTrackedEvent) error {
 	if len(aggregateId) <= 0 {
-		return fmt.Errorf("AGGREGATEID EMPTY")
+		return fmt.Errorf("aggregateId empty")
 	}
 	for _, event := range events {
 		if len(event.AggregateType) <= 0 {
-			return fmt.Errorf("AGGREGATETYPE EMPTY")
+			return fmt.Errorf("aggregateType empty")
 		}
 		if len(event.Data) == 0 {
-			return fmt.Errorf("DATA EMPTY")
+			return fmt.Errorf("data empty")
 		}
 		if len(event.Name) == 0 {
-			return fmt.Errorf("NAME EMPTY")
+			return fmt.Errorf("name empty")
 		}
 	}
 	return client.AddEventsWithoutValidation(aggregateId, events)
@@ -75,25 +75,25 @@ func (client *EventSourcingHttpClient) AddEventsWithoutValidation(aggregateId st
 	newEvents := stripOldEvents(events)
 	bodyBytes, err := json.Marshal(newEvents)
 	if err != nil {
-		log.Info().Err(err).Msg("Could not marshal events")
+		log.Info().Err(err).Msg("could not marshal events")
 		return err
 	}
 	buf := bytes.NewBuffer(bodyBytes)
 	addEventsUrl, err := url.JoinPath(client.url, fmt.Sprintf("/%s/events", aggregateId))
 	if err != nil {
-		log.Info().Err(err).Msg("Could not use url")
+		log.Info().Err(err).Msg("could not use url")
 		return err
 	}
 
 	resp, err := client.httpClient.Post(addEventsUrl, "application/json", buf)
 
 	if err != nil {
-		log.Info().Err(err).Msg("Error during the request")
+		log.Info().Err(err).Msg("error during the request")
 		return err
 	}
 	if resp.StatusCode < 200 || resp.StatusCode > 299 {
-		log.Info().Err(err).Msg("Got non 2XX header")
-		return fmt.Errorf("UNSUCCESSFUL REQUEST")
+		log.Info().Err(err).Msg("got non 2XX header")
+		return fmt.Errorf("unsuccessful request")
 	}
 	return nil
 }
@@ -102,29 +102,29 @@ func (client *EventSourcingHttpClient) GetEventsOrdered(aggregateId string) (*Ev
 
 	getEventsUrl, err := url.JoinPath(client.url, fmt.Sprintf("/%s/events", aggregateId))
 	if err != nil {
-		log.Info().Err(err).Msg("Could not use url")
+		log.Info().Err(err).Msg("could not use url")
 		return nil, err
 	}
 
 	resp, err := client.httpClient.Get(getEventsUrl)
 	if err != nil {
-		log.Info().Err(err).Msg("Error during the request")
+		log.Info().Err(err).Msg("error during the request")
 		return nil, err
 	}
 	if resp.StatusCode < 200 || resp.StatusCode > 299 {
-		log.Info().Err(err).Msg("Got non 2XX header")
-		return nil, fmt.Errorf("UNSUCCESSFUL REQUEST")
+		log.Info().Err(err).Msg("got non 2XX header")
+		return nil, fmt.Errorf("unsuccessful request")
 	}
 	var events []models.Event
 	buf, err := io.ReadAll(resp.Body)
 	if err != nil {
-		log.Info().Err(err).Msg("Error during reading response body")
+		log.Info().Err(err).Msg("error during reading response body")
 		return nil, err
 	}
 	err = json.Unmarshal(buf, &events)
 
 	if err != nil {
-		log.Info().Err(err).Msg("Error during unmarshalling body")
+		log.Info().Err(err).Msg("error during unmarshalling body")
 		return nil, err
 	}
 
@@ -140,4 +140,50 @@ func (client *EventSourcingHttpClient) GetEventsOrdered(aggregateId string) (*Ev
 	})
 	eventsIterator := NewEventIterator(events)
 	return eventsIterator, nil
+}
+
+func (client *EventSourcingHttpClient) GetEventsSince(eventId string, limit int) ([]models.Event, error) {
+	if len(eventId) == 0 {
+		eventId = "0"
+	}
+	if limit <= 0 {
+		return nil, fmt.Errorf("invalid limit value")
+	}
+	if limit > 100 {
+		limit = 100
+	}
+
+	getEventsSinceUrl, err := url.JoinPath(client.url, "/events", url.PathEscape(eventId), "since")
+	if err != nil {
+		log.Info().Err(err).Msg("could not use url")
+		return nil, err
+	}
+
+	query := url.Values{}
+	query.Set("limit", fmt.Sprintf("%d", limit))
+	getEventsSinceUrl = fmt.Sprintf("%s?%s", getEventsSinceUrl, query.Encode())
+
+	resp, err := client.httpClient.Get(getEventsSinceUrl)
+	if err != nil {
+		log.Info().Err(err).Msg("error during the request")
+		return nil, err
+	}
+	if resp.StatusCode < 200 || resp.StatusCode > 299 {
+		log.Info().Err(err).Msg("got non 2XX header")
+		return nil, fmt.Errorf("unsuccessful request")
+	}
+
+	var events []models.Event
+	buf, err := io.ReadAll(resp.Body)
+	if err != nil {
+		log.Info().Err(err).Msg("error during reading response body")
+		return nil, err
+	}
+	err = json.Unmarshal(buf, &events)
+	if err != nil {
+		log.Info().Err(err).Msg("error during unmarshalling body")
+		return nil, err
+	}
+
+	return events, nil
 }

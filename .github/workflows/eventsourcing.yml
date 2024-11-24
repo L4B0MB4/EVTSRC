@@ -36,8 +36,7 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
       - name: Build and push
-        if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/development'
         uses: docker/build-push-action@v6
         with:
-          push: true
+          push: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/development'
           tags: ${{ vars.DOCKERHUB_USERNAME }}/evtsrc:${{ github.ref == 'refs/heads/master' && 'latest' || github.ref_name }}

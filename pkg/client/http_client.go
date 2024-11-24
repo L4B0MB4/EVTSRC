@@ -84,7 +84,7 @@ func (client *EventSourcingHttpClient) AddEventsWithoutValidation(aggregateId st
 		return err
 	}
 	buf := bytes.NewBuffer(bodyBytes)
-	addEventsUrl, err := url.JoinPath(client.url, fmt.Sprintf("/%s/events", aggregateId))
+	addEventsUrl, err := url.JoinPath(client.url, fmt.Sprintf("/aggregates/%s/events", aggregateId))
 	if err != nil {
 		log.Info().Err(err).Msg("could not use url")
 		return err
@@ -106,7 +106,7 @@ func (client *EventSourcingHttpClient) AddEventsWithoutValidation(aggregateId st
 // GetEventsOrdered retrieves events for a given aggregate ID in order.
 func (client *EventSourcingHttpClient) GetEventsOrdered(aggregateId string) (*EventsIterator, error) {
 
-	getEventsUrl, err := url.JoinPath(client.url, fmt.Sprintf("/%s/events", aggregateId))
+	getEventsUrl, err := url.JoinPath(client.url, fmt.Sprintf("/aggregates/%s/events", aggregateId))
 	if err != nil {
 		log.Info().Err(err).Msg("could not use url")
 		return nil, err

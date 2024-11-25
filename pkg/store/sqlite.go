@@ -14,7 +14,7 @@ type DatabaseConnection struct {
 	db          *sql.DB
 }
 
-var _DBFILE = "./eventstore.db"
+var _DBFILE = "./db_files/eventstore.db"
 
 func GetDbFileLocation() string {
 	return _DBFILE
@@ -28,6 +28,13 @@ func (d *DatabaseConnection) Teardown() error {
 }
 
 func (d *DatabaseConnection) SetUp() {
+	if _, err := os.Stat("./db_files"); os.IsNotExist(err) {
+		err = os.Mkdir("./db_files", os.ModePerm)
+		if err != nil {
+			log.Info().Err(err).Msg("Creating directory for database files")
+			return
+		}
+	}
 	db, err := sql.Open("sqlite3", _DBFILE)
 	if err != nil {
 

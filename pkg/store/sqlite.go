@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"os"
+	"path/filepath"
 
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/rs/zerolog/log"
@@ -28,8 +29,9 @@ func (d *DatabaseConnection) Teardown() error {
 }
 
 func (d *DatabaseConnection) SetUp() {
-	if _, err := os.Stat("./db_files"); os.IsNotExist(err) {
-		err = os.Mkdir("./db_files", os.ModePerm)
+	dbDir := filepath.Dir(_DBFILE)
+	if _, err := os.Stat(dbDir); os.IsNotExist(err) {
+		err = os.Mkdir(dbDir, os.ModePerm)
 		if err != nil {
 			log.Info().Err(err).Msg("Creating directory for database files")
 			return

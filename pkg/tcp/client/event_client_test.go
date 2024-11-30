@@ -48,6 +48,7 @@ func TestTcpEventClientServerMultipleReads(t *testing.T) {
 	for _, event := range testEvents {
 		err = server.SendEvent(event)
 		assert.NoError(t, err)
+		t.Log("Sent event: ", event)
 	}
 
 	for _, expectedEvent := range testEvents {

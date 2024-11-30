@@ -33,12 +33,18 @@ func (tcpServer *TcpEventServer) setup() error {
 		log.Fatal().Err(err).Msg("Failed to listen")
 		return err
 	}
+	if tcpServer.listener != nil {
+		tcpServer.Stop()
+	}
 	tcpServer.listener = listener
 	return nil
 }
 
 func (tcpServer *TcpEventServer) Stop() {
-	tcpServer.listener.Close()
+	err := tcpServer.listener.Close()
+	if err != nil {
+		log.Debug().Err(err).Msg("Failed to close listener")
+	}
 }
 
 func (tcpServer *TcpEventServer) Start() {
@@ -46,7 +52,6 @@ func (tcpServer *TcpEventServer) Start() {
 		conn, err := tcpServer.listener.Accept()
 		if err != nil {
 			if errors.Is(err, net.ErrClosed) {
-				tcpServer.Stop()
 				err = tcpServer.setup()
 				if err != nil {
 					log.Error().Err(err).Msg("Failed retry setup listener")

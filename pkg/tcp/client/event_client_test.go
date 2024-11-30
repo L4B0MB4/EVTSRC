@@ -10,6 +10,7 @@ import (
 
 func TestTcpEventClientServerIntegration(t *testing.T) {
 	server, err := server.NewTcpEventServer()
+	defer server.Stop()
 	assert.NoError(t, err)
 	go server.Start()
 
@@ -33,6 +34,7 @@ func TestTcpEventClientServerIntegration(t *testing.T) {
 
 func TestTcpEventClientServerMultipleReads(t *testing.T) {
 	server, err := server.NewTcpEventServer()
+	defer server.Stop()
 	assert.NoError(t, err)
 	go server.Start()
 
@@ -60,6 +62,7 @@ func TestTcpEventClientServerMultipleReads(t *testing.T) {
 
 func TestTcpEventClientReconnect(t *testing.T) {
 	tcpServer, err := server.NewTcpEventServer()
+	defer tcpServer.Stop()
 	assert.NoError(t, err)
 	go tcpServer.Start()
 

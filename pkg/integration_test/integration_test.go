@@ -33,6 +33,7 @@ func setup() (*client.EventSourcingHttpClient, *httphandler.HttpHandler, *store.
 
 	}
 	go tcpServer.Start()
+	tcpServer.Stop()
 	c := controller.NewEventController(repository, tcpServer)
 	h := httphandler.NewHttpHandler(c)
 

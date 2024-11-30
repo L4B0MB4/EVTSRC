@@ -40,17 +40,17 @@ func (tcpEv *TcpEventClient) ListenForEvents(channel chan string) {
 		buffer := make([]byte, 128)
 		n, err := tcpEv.conn.Read(buffer)
 		if err != nil {
+			log.Error().Err(err).Msg("Failed to read from connection")
 			if errors.Is(err, net.ErrClosed) ||
 				errors.Is(err, io.EOF) ||
 				errors.Is(err, syscall.EPIPE) {
+				time.Sleep(1 * time.Second)
 				tcpEv.conn.Close()
 				tcpEv.setup()
 				continue
 			}
 			time.Sleep(100 * time.Millisecond)
 
-			log.Error().Err(err).Msg("Failed to read from connection")
-			time.Sleep(1 * time.Second)
 			continue
 		}
 		message := strings.TrimRight(string(buffer[:n]), "\x00")

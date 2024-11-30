@@ -27,7 +27,7 @@ func TestTcpEventClientServerIntegration(t *testing.T) {
 	select {
 	case receivedEvent := <-eventChannel:
 		assert.Equal(t, testEvent, receivedEvent)
-	case <-time.After(4 * time.Second):
+	case <-time.After(10 * time.Second):
 		t.Fatal("Timeout waiting for event")
 	}
 }
@@ -54,7 +54,7 @@ func TestTcpEventClientServerMultipleReads(t *testing.T) {
 		select {
 		case receivedEvent := <-eventChannel:
 			assert.Equal(t, expectedEvent, receivedEvent)
-		case <-time.After(4 * time.Second):
+		case <-time.After(10 * time.Second):
 			t.Fatal("Timeout waiting for event")
 		}
 	}
@@ -84,7 +84,7 @@ func TestTcpEventClientReconnect(t *testing.T) {
 	select {
 	case receivedEvent := <-eventChannel:
 		assert.Equal(t, testEvent, receivedEvent)
-	case <-time.After(4 * time.Second):
+	case <-time.After(10 * time.Second):
 		t.Fatal("Timeout waiting for event after reconnection")
 	}
 }

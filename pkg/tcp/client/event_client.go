@@ -25,6 +25,7 @@ func NewTcpEventClient() (*TcpEventClient, error) {
 	tcpEv := TcpEventClient{
 		clientURL: clientURL,
 	}
+	log.Debug().Msg("Setting up client")
 	err := tcpEv.setup(10)
 	if err != nil {
 		return nil, err

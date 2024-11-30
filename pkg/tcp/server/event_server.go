@@ -28,7 +28,7 @@ func NewTcpEventServer() (*TcpEventServer, error) {
 }
 
 func (tcpServer *TcpEventServer) setup() error {
-	listener, err := net.Listen("tcp", ":5521")
+	listener, err := net.Listen("tcp", "0.0.0.0:5521")
 	if err != nil {
 		log.Fatal().Err(err).Msg("Failed to listen")
 		return err
@@ -48,6 +48,7 @@ func (tcpServer *TcpEventServer) Stop() {
 }
 
 func (tcpServer *TcpEventServer) Start() {
+	log.Debug().Msg("Starting tcp server")
 	for {
 		conn, err := tcpServer.listener.Accept()
 		if err != nil {

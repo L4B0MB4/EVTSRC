@@ -9,6 +9,7 @@ import (
 	"github.com/L4B0MB4/EVTSRC/pkg/httphandler/controller"
 	"github.com/L4B0MB4/EVTSRC/pkg/models"
 	"github.com/L4B0MB4/EVTSRC/pkg/store"
+	"github.com/L4B0MB4/EVTSRC/pkg/tcp/server"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"github.com/stretchr/testify/assert"
@@ -25,8 +26,14 @@ func setup() (*client.EventSourcingHttpClient, *httphandler.HttpHandler, *store.
 	}
 	log.Debug().Msg("Db Connection was successful")
 	repository := store.NewEventRepository(conn)
+	tcpServer, err := server.NewTcpEventServer()
+	if err != nil {
+		log.Error().Err(err).Msg("Unsuccessfull initalization of tcp server")
+		panic(err)
 
-	c := controller.NewEventController(repository)
+	}
+	go tcpServer.Start()
+	c := controller.NewEventController(repository, tcpServer)
 	h := httphandler.NewHttpHandler(c)
 
 	go func() {

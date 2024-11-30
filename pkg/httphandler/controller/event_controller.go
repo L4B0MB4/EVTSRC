@@ -8,18 +8,21 @@ import (
 	"github.com/L4B0MB4/EVTSRC/pkg/models"
 	"github.com/L4B0MB4/EVTSRC/pkg/models/customerrors"
 	"github.com/L4B0MB4/EVTSRC/pkg/store"
+	"github.com/L4B0MB4/EVTSRC/pkg/tcp/server"
 	"github.com/gin-gonic/gin"
 )
 
 // EventController handles HTTP requests for events.
 type EventController struct {
-	repo *store.EventRepository
+	repo      *store.EventRepository
+	tcpServer *server.TcpEventServer
 }
 
 // NewEventController creates a new EventController.
-func NewEventController(repo *store.EventRepository) *EventController {
+func NewEventController(repo *store.EventRepository, tcpServer *server.TcpEventServer) *EventController {
 	return &EventController{
-		repo: repo,
+		repo:      repo,
+		tcpServer: tcpServer,
 	}
 }
 
@@ -70,6 +73,7 @@ func (ctrl *EventController) AddEventToAggregate(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Unkown error occured"})
 		return
 	}
+	ctrl.tcpServer.SendEvent("NewEvent")
 }
 
 // GetEventsSince handles the retrieval of events since a given event ID with a limit.

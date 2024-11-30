@@ -1,6 +1,7 @@
 package client
 
 import (
+	"fmt"
 	"net"
 	"strings"
 	"time"
@@ -14,22 +15,33 @@ type TcpEventClient struct {
 
 func NewTcpEventClient() (*TcpEventClient, error) {
 	tcpEv := TcpEventClient{}
-	conn, err := tcpEv.setup()
+	err := tcpEv.setup(10)
 	if err != nil {
 		return nil, err
 	}
-	tcpEv.conn = conn
+
 	return &tcpEv, nil
 }
 
-func (tcpEv *TcpEventClient) setup() (net.Conn, error) {
+func (tcpEv *TcpEventClient) setup(retries int) error {
+	if retries <= 0 {
+		log.Fatal().Msg("Exceeded maximum reconnection attempts")
+		return fmt.Errorf("exceeded maximum reconnection attempts")
+	}
+	if tcpEv.conn != nil {
+
+		tcpEv.conn.Close()
+	}
+
 	conn, err := net.Dial("tcp", "localhost:5521")
 	if err != nil {
-		log.Fatal().Err(err).Msg("Failed to connect to server")
-		return nil, err
+		log.Error().Err(err).Msgf("Failed to connect to server, retries left: %d", retries-1)
+		time.Sleep(1 * time.Second)
+		return tcpEv.setup(retries - 1)
 	}
-	return conn, nil
-
+	log.Debug().Msg("Connected to server")
+	tcpEv.conn = conn
+	return nil
 }
 
 func (tcpEv *TcpEventClient) ListenForEvents(channel chan string) {
@@ -38,9 +50,7 @@ func (tcpEv *TcpEventClient) ListenForEvents(channel chan string) {
 		n, err := tcpEv.conn.Read(buffer)
 		if err != nil {
 			log.Error().Err(err).Msg("Failed to read from connection")
-			time.Sleep(1 * time.Second)
-			tcpEv.conn.Close()
-			tcpEv.setup()
+			tcpEv.setup(10)
 			continue
 		}
 		message := strings.TrimRight(string(buffer[:n]), "\x00")

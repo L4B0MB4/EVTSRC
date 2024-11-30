@@ -2,6 +2,7 @@ package client
 
 import (
 	"net"
+	"os"
 	"strings"
 	"time"
 
@@ -9,11 +10,21 @@ import (
 )
 
 type TcpEventClient struct {
-	conn net.Conn
+	conn      net.Conn
+	clientURL string
 }
 
 func NewTcpEventClient() (*TcpEventClient, error) {
-	tcpEv := TcpEventClient{}
+	clientURL := os.Getenv("EVENT_SOURCING_CLIENT_TCP")
+	if clientURL == "" {
+		clientURL = "localhost:5521"
+		log.Debug().Msgf("EVENT_SOURCING_CLIENT_TCP not set, defaulting to %s", clientURL)
+	} else {
+		log.Debug().Msgf("Using EVENT_SOURCING_CLIENT_TCP: %s", clientURL)
+	}
+	tcpEv := TcpEventClient{
+		clientURL: clientURL,
+	}
 	err := tcpEv.setup(10)
 	if err != nil {
 		return nil, err
@@ -33,7 +44,7 @@ func (tcpEv *TcpEventClient) setup(retries int) error {
 		tcpEv.conn.Close()
 	}
 
-	conn, err := net.Dial("tcp", "localhost:5521")
+	conn, err := net.Dial("tcp", tcpEv.clientURL)
 	if err != nil {
 		log.Error().Err(err).Msgf("Failed to connect to server, retries left: %d", retries-1)
 		time.Sleep(1 * time.Second)

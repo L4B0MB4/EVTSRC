@@ -52,11 +52,9 @@ func (tcpServer *TcpEventServer) Start() {
 		conn, err := tcpServer.listener.Accept()
 		if err != nil {
 			if errors.Is(err, net.ErrClosed) {
-				err = tcpServer.setup()
-				if err != nil {
-					log.Error().Err(err).Msg("Failed retry setup listener")
-					panic(err)
-				}
+				log.Err(err).Msg("Listener closed")
+				log.Error().Err(err).Msg("Failed retry setup listener")
+				return
 			}
 			log.Error().Err(err).Msg("Failed to accept connection")
 			continue

@@ -23,7 +23,7 @@ jobs:
           go-version: "1.23.1"
 
       - name: Test
-        run: go test -p 1 -v ./... # -p 1 no parallel execution due to port conflict
+        run: go test -v ./...
 
       - name: Login to Docker Hub
         uses: docker/login-action@v3

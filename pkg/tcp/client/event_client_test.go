@@ -16,7 +16,7 @@ func TestTcpEventClientServerIntegration(t *testing.T) {
 	client, err := NewTcpEventClient()
 	assert.NoError(t, err)
 
-	eventChannel := make(chan string)
+	eventChannel := make(chan string, 1)
 	go client.ListenForEvents(eventChannel)
 
 	testEvent := "Test Event"
@@ -39,7 +39,7 @@ func TestTcpEventClientServerMultipleReads(t *testing.T) {
 	client, err := NewTcpEventClient()
 	assert.NoError(t, err)
 
-	eventChannel := make(chan string)
+	eventChannel := make(chan string, 1)
 	go client.ListenForEvents(eventChannel)
 
 	testEvents := []string{"Event 1", "Event 2", "Event 3"}
@@ -55,5 +55,33 @@ func TestTcpEventClientServerMultipleReads(t *testing.T) {
 		case <-time.After(2 * time.Second):
 			t.Fatal("Timeout waiting for event")
 		}
+	}
+}
+
+func TestTcpEventClientReconnect(t *testing.T) {
+	tcpServer, err := server.NewTcpEventServer()
+	assert.NoError(t, err)
+	go tcpServer.Start()
+
+	client, err := NewTcpEventClient()
+	assert.NoError(t, err)
+
+	eventChannel := make(chan string, 1)
+	go client.ListenForEvents(eventChannel)
+
+	time.Sleep(1 * time.Second)
+	tcpServer.Stop()
+	time.Sleep(1 * time.Second)
+
+	// Send event after reconnection
+	testEvent := "Reconnected Event"
+	err = tcpServer.SendEvent(testEvent)
+	assert.NoError(t, err)
+
+	select {
+	case receivedEvent := <-eventChannel:
+		assert.Equal(t, testEvent, receivedEvent)
+	case <-time.After(2 * time.Second):
+		t.Fatal("Timeout waiting for event after reconnection")
 	}
 }

@@ -37,10 +37,22 @@ func (tcpServer *TcpEventServer) setup() error {
 	return nil
 }
 
+func (tcpServer *TcpEventServer) Stop() {
+	tcpServer.listener.Close()
+}
+
 func (tcpServer *TcpEventServer) Start() {
 	for {
 		conn, err := tcpServer.listener.Accept()
 		if err != nil {
+			if errors.Is(err, net.ErrClosed) {
+				tcpServer.Stop()
+				err = tcpServer.setup()
+				if err != nil {
+					log.Error().Err(err).Msg("Failed retry setup listener")
+					panic(err)
+				}
+			}
 			log.Error().Err(err).Msg("Failed to accept connection")
 			continue
 		}

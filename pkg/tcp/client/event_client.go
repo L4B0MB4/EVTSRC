@@ -1,8 +1,12 @@
 package client
 
 import (
+	"errors"
+	"io"
 	"net"
 	"strings"
+	"syscall"
+	"time"
 
 	"github.com/rs/zerolog/log"
 )
@@ -36,7 +40,17 @@ func (tcpEv *TcpEventClient) ListenForEvents(channel chan string) {
 		buffer := make([]byte, 128)
 		n, err := tcpEv.conn.Read(buffer)
 		if err != nil {
+			if errors.Is(err, net.ErrClosed) ||
+				errors.Is(err, io.EOF) ||
+				errors.Is(err, syscall.EPIPE) {
+				tcpEv.conn.Close()
+				tcpEv.setup()
+				continue
+			}
+			time.Sleep(100 * time.Millisecond)
+
 			log.Error().Err(err).Msg("Failed to read from connection")
+			time.Sleep(1 * time.Second)
 			continue
 		}
 		message := strings.TrimRight(string(buffer[:n]), "\x00")

@@ -1,7 +1,6 @@
 package client
 
 import (
-	"fmt"
 	"net"
 	"strings"
 	"time"
@@ -26,7 +25,8 @@ func NewTcpEventClient() (*TcpEventClient, error) {
 func (tcpEv *TcpEventClient) setup(retries int) error {
 	if retries <= 0 {
 		log.Fatal().Msg("Exceeded maximum reconnection attempts")
-		return fmt.Errorf("exceeded maximum reconnection attempts")
+		panic("Exceeded maximum reconnection attempts")
+
 	}
 	if tcpEv.conn != nil {
 

@@ -51,7 +51,7 @@ func (tcpEv *TcpEventClient) setup(retries int) error {
 		time.Sleep(1 * time.Second)
 		return tcpEv.setup(retries - 1)
 	}
-	log.Debug().Msg("Connected to server")
+	log.Debug().Msg("Connected to tcp server")
 	tcpEv.conn = conn
 	return nil
 }
@@ -66,7 +66,7 @@ func (tcpEv *TcpEventClient) ListenForEvents(channel chan string) {
 			continue
 		}
 		message := strings.TrimRight(string(buffer[:n]), "\x00")
-		log.Info().Msg(message)
+		log.Info().Msg("Message received from eventclient: " + message)
 		channel <- message
 	}
 }

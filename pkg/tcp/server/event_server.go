@@ -63,6 +63,7 @@ func (tcpServer *TcpEventServer) Start() {
 		tcpServer.mu.Lock()
 		tcpServer.consumer = append(tcpServer.consumer, conn)
 		tcpServer.mu.Unlock()
+		log.Trace().Msg("Accepted connection")
 	}
 }
 

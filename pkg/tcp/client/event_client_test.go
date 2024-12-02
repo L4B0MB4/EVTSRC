@@ -1,6 +1,13 @@
 package client
 
-/*
+import (
+	"testing"
+	"time"
+
+	"github.com/L4B0MB4/EVTSRC/pkg/tcp/server"
+	"github.com/stretchr/testify/assert"
+)
+
 func TestTcpEventClientServerIntegration(t *testing.T) {
 	server, err := server.NewTcpEventServer()
 	defer server.Stop()
@@ -25,6 +32,7 @@ func TestTcpEventClientServerIntegration(t *testing.T) {
 	}
 }
 
+/*
 	func TestTcpEventClientServerMultipleReads(t *testing.T) {
 		server, err := server.NewTcpEventServer()
 		defer server.Stop()
@@ -53,7 +61,7 @@ func TestTcpEventClientServerIntegration(t *testing.T) {
 			}
 		}
 	}
-
+*/
 func TestTcpEventClientReconnect(t *testing.T) {
 	tcpServer, err := server.NewTcpEventServer()
 	defer tcpServer.Stop()
@@ -82,4 +90,3 @@ func TestTcpEventClientReconnect(t *testing.T) {
 		t.Fatal("Timeout waiting for event after reconnection")
 	}
 }
-*/

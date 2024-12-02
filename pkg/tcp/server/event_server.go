@@ -83,11 +83,15 @@ func (tcpServer *TcpEventServer) SendEvent(event string) error {
 	eventBytes := make([]byte, 128)
 	copy(eventBytes, []byte(event))
 	for i, conn := range tcpServer.consumer {
+		log.Trace().Msgf("Sending event to consumer %d", i)
 		_, err := conn.Write(eventBytes)
 		if err != nil {
 			log.Error().Err(err).Msg("Failed to send event - closing connection")
 			conn.Close()
 			tcpServer.consumer[i] = nil
+		} else {
+
+			log.Trace().Msgf("Sent event to consumer %d", i)
 		}
 	}
 	tcpServer.mu.Lock()
